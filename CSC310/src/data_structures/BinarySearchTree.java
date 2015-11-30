@@ -79,26 +79,12 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 		}
 		return curr.value;
  	}
-
-	private Node<K,V> inOrder(Node<K,V> node, V value) {
-		Node<K,V> temp = null;
-		if ( node != null ) {
-			inOrder(node.leftChild, value);
-			temp = node;
-			if (((Comparable<V>)temp.value).compareTo((V)value) == 0)
-				return temp;
-			inOrder(node.rightChild, value);
-		}
-		return temp;
-	}
 	
 	public K getKey(V value) {
 		if (root == null)
 			return null;
-		Node<K,V> temp = inOrder(root, value);
-		return temp.key;
 		// v counter
-		/* int vcounter = 0;
+		int vcounter = 0;
 		// v iterator
 		Iterator<V> vItr = values();
 		while (vItr.hasNext()) {
@@ -114,7 +100,7 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 		for (int i = 0; i <= vcounter; i++) {
 			currKey = kItr.next();
 		}
-		return currKey; */
+		return currKey;
 	}
 
 	public int size() {
