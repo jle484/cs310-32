@@ -62,38 +62,55 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 	public boolean delete(K key) {
 		if (isEmpty())
 			return false;
-		if (currSize == 1)
-			clear();
 		Node<K,V> curr = root;
-		// delete root
-		if ( ((Comparable<K>)curr.key).compareTo((K) key) == 0 ) {
-			Node<K,V> rootRChild = curr.rightChild;
-			Node<K,V> rootLChild = curr.leftChild;
-			if ( ((Comparable<K>)rootRChild.key).compareTo((K)rootLChild.key) < 0 )
-				root = rootRChild;
-			else
-				root = rootLChild;
-		}
+		//root is the only node left
+		if (((Comparable<K>)curr.key).compareTo((K) key) == 0 && currSize == 1)
+			clear();
 		Node<K,V> parent = null;
-		boolean rtChild = false, ltChild = false;
 		//node has 0 children
 		while ( ((Comparable<K>)curr.key).compareTo((K) key) != 0 ) {
 			if ( ((Comparable<K>)key).compareTo((K) curr.key) < 0 ) {
 				parent = curr;
 				curr = curr.leftChild;
 			}
-			else
+			else {
 				parent = curr;
 				curr = curr.rightChild;
+			}
 			if ( curr == null )
 				return false;
 		}
-		if (((Comparable<K>)parent.rightChild.key).compareTo((K) curr.key) == 0 )
-			parent.rightChild = null;
-		else
-			parent.leftChild = null;
+		if (curr.leftChild == null && curr.rightChild == null) {
+			if (((Comparable<K>)parent.rightChild.key).compareTo((K) curr.key) == 0 )
+				parent.rightChild = null;
+			else
+				parent.leftChild = null;
+		}
+		else if (curr.leftChild == null || curr.rightChild == null) {
+			if (curr.leftChild == null)
+				parent.rightChild = curr.rightChild;
+			else
+				parent.leftChild = curr.leftChild;
+		}
+		else {
+			Node<K,V> newCurr = curr;
+			Node<K,V> test = preOrder(newCurr);
+			System.out.println(test.key);
+		}
 		currSize--;
+		modCounter++;
 		return true;
+	}
+	
+	private Node<K,V> preOrder(Node<K,V> n) {
+		Node<K,V> currNode;
+		if (n == null)
+			return null;
+		preOrder(n.leftChild);
+		currNode = n;
+		preOrder(n.rightChild);
+		
+		return currNode;
 	}
 
 	public V getValue(K key) {
@@ -145,14 +162,6 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 
 	public boolean isEmpty() {
 		return currSize == 0;
-	}
-	
-	private void doPrint(Node n) {
-		if (n == null)
-			return;
-		doPrint(n.leftChild);
-		System.out.println(n.value);
-		doPrint(n.rightChild);
 	}
 
 	public void clear() {

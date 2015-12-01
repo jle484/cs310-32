@@ -31,6 +31,11 @@ public class BSTtest {
 	      System.out.println("Contains S: " + bst.contains("S"));
 	      System.out.println("Value of key S: " + bst.getValue("S"));
 	      System.out.println("Key of value 4: " + bst.getKey(4));
+	      bst.delete("S");
+	      Iterator<String> kItr2 = bst.keys();
+	      while (kItr2.hasNext()) {
+	    	  System.out.print(kItr2.next() + " ");
+	      }
 	      
 	}
 
