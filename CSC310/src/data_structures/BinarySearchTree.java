@@ -7,6 +7,7 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 	protected Node<K,V> root;
 	private int currSize;
 	protected long modCounter = 0;
+	private boolean usedSuccessorLast;
 	
 	public BinarySearchTree() {
 		root = null;
@@ -59,9 +60,40 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 	}
 
 	public boolean delete(K key) {
-		// TODO Auto-generated method stub
-		
-		return false;
+		if (isEmpty())
+			return false;
+		if (currSize == 1)
+			clear();
+		Node<K,V> curr = root;
+		// delete root
+		if ( ((Comparable<K>)curr.key).compareTo((K) key) == 0 ) {
+			Node<K,V> rootRChild = curr.rightChild;
+			Node<K,V> rootLChild = curr.leftChild;
+			if ( ((Comparable<K>)rootRChild.key).compareTo((K)rootLChild.key) < 0 )
+				root = rootRChild;
+			else
+				root = rootLChild;
+		}
+		Node<K,V> parent = null;
+		boolean rtChild = false, ltChild = false;
+		//node has 0 children
+		while ( ((Comparable<K>)curr.key).compareTo((K) key) != 0 ) {
+			if ( ((Comparable<K>)key).compareTo((K) curr.key) < 0 ) {
+				parent = curr;
+				curr = curr.leftChild;
+			}
+			else
+				parent = curr;
+				curr = curr.rightChild;
+			if ( curr == null )
+				return false;
+		}
+		if (((Comparable<K>)parent.rightChild.key).compareTo((K) curr.key) == 0 )
+			parent.rightChild = null;
+		else
+			parent.leftChild = null;
+		currSize--;
+		return true;
 	}
 
 	public V getValue(K key) {
@@ -124,7 +156,9 @@ public class BinarySearchTree<K,V> implements DictionaryADT<K,V> {
 	}
 
 	public void clear() {
-		// TODO Auto-generated method stub
+		root = null;
+		currSize = 0;
+		modCounter = 0;
 	}
 
 	public Iterator keys() {
