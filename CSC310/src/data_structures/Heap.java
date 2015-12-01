@@ -1,31 +1,42 @@
 package data_structures;
 
 public class Heap<E> {
-	public Heap() {
-		
-	}
 	
 	public E[] heapSort(E[] list) {
 		E[] n = list;
 		int heapSize = 1;
 		int i, index, parent;
-		E newAdd, top;
+		E newAdd = null, top;
 		int larger, left, right;
 		int len = n.length;
 		
-		for (i = 0; i < len; i++) {
-			index = heapSize - 1;
-			parent = (index - 1) >> 1;
-			newAdd = n[index];
-			while (index > 0 && ((Comparable<E>)n[parent]).compareTo((E)newAdd) < 0) {
-				n[index] = n[parent];
-				index = parent;
-				parent = (parent - 1) >> 1;
+		try {
+			//Build heap
+			for (i = 0; i < len; i++) {
+				index = heapSize - 1;
+				newAdd = n[index];
+				parent = (index - 1) >> 1;
+				E pNode;
+				if (parent < 0)
+					pNode = n[index];
+				else
+					pNode = n[parent];
+				while (index > 0 && ((Comparable<E>)pNode).compareTo((E)newAdd) < 0) {
+					n[index] = n[parent];
+					index = parent;
+					parent = (parent - 1) >> 1;
+					if (parent >= 0)
+						pNode = n[parent];
+				}
+				n[index] = newAdd;
+				heapSize++;
 			}
-			n[index] = newAdd;
-			heapSize++;
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 		
+		//empty heap and fill array
 		heapSize--;
 		for (i = len - 1; i >= 0; i--) {
 			E temp = n[0];

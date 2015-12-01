@@ -134,7 +134,7 @@ public class Exoplanets extends JFrame {
       StarSystem entry = StarSystem.updateFromArray(previous, csv);
       target.add(systemName, entry);
     } catch (Exception e) {
-
+    	System.err.println(e.getMessage());
     }
 
     return true;

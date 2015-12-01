@@ -10,16 +10,48 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	private int maxSize;
 	private int tableSize;
 	private long modCounter;
+	private final double LOAD_FACTOR = 0.75;
 	private LinearList<DictionaryNode<K,V>> [] list;
 	
-	public HashTable(int n) {
+	public HashTable() {
 		currSize = 0;
-		maxSize = n;
+		maxSize = 11;
 		modCounter = 0;
+		createTable();
+	}
+	
+	private void createTable() {
 		tableSize = (int)(maxSize * 1.3f);
-		list = new LinearList[tableSize];
-		for(int i = 0; i < tableSize; i++)
-			list[i] = new LinearList<DictionaryNode<K,V>>();
+		if (isEmpty()) {
+			list = new LinearList[tableSize];
+			for(int i = 0; i < tableSize; i++)
+				list[i] = new LinearList<DictionaryNode<K,V>>();
+		}
+		else {
+			int newSize = 0;
+			LinearList<DictionaryNode<K,V>> [] tempList = new LinearList[tableSize];
+			for(int i = 0; i < tableSize; i++) {
+				tempList[i] = new LinearList<DictionaryNode<K,V>>();
+			}
+			try {
+				for(int j = 0; j < list.length; j++) {
+					DictionaryNode<K,V> tempNode = list[j].peekFirst();
+					if (tempNode != null) {
+						K tempKey = tempNode.key;
+						int newIndex = getListIndex(tempKey);
+						tempList[newIndex].addFirst(tempNode);
+						newSize++;
+					}
+				}
+			}
+			catch (Exception e) {
+				System.out.println("Error in Create Table");
+				System.out.println("Error is " + e.getMessage());
+			}
+			list = tempList;
+			currSize = newSize;
+			modCounter++;
+		}	
 	}
 	
 	private int getListIndex(K key) {
@@ -33,27 +65,43 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	}
 
 	public boolean add(K key, V value) {
-		if (isFull())
-			return false;
-		LinearList<DictionaryNode<K,V>> hashBin = list[getListIndex(key)];
-		DictionaryNode<K,V> newNode = new DictionaryNode<K,V>(key, value);
-		if (hashBin.contains(newNode) && hashBin.find(newNode).equals(newNode))
-			return false;
-		list[getListIndex(key)].addFirst(new DictionaryNode<K,V>(key,value));
-		currSize++;
-		modCounter++;
+		try {
+			if (isFull())
+				return false;
+			int hashIndex = getListIndex(key);
+			LinearList<DictionaryNode<K,V>> hashBin = list[hashIndex];
+			DictionaryNode<K,V> newNode = new DictionaryNode<K,V>(key, value);
+			hashBin.addFirst(newNode);
+			currSize++;
+			modCounter++;
+			double currLoadFactor = ((double) currSize) / tableSize;
+			if (currLoadFactor > LOAD_FACTOR) {
+				maxSize = currSize * 2;
+				createTable();	
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Error in add");
+			System.out.println("Error is " + e.getMessage());
+		}
 		return true;
 	}
 
 	public boolean delete(K key) {
-		if (isEmpty())
-			return false;
-		if (contains(key)) {
-			int listIndex = getListIndex(key); 
-			list[listIndex].removeFirst();
-			currSize--;
-			modCounter++;
-			return true;
+		try {
+			if (isEmpty())
+				return false;
+			if (contains(key)) {
+				int listIndex = getListIndex(key); 
+				list[listIndex].removeFirst();
+				currSize--;
+				modCounter++;
+				return true;
+			}
+		}
+		catch (Exception e) {
+			System.out.println("Error in Delete");
+			System.out.println("Error is " + e.getMessage());
 		}
 		return false;
 	}
@@ -66,12 +114,21 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	   * @return contents of value or null if not found
 	   */
 	public V getValue(K key) {
-		if (isEmpty())
-			return null;
-		DictionaryNode<K,V> temp = list[getListIndex(key)].find((new DictionaryNode<K,V>(key, null)));
-		if (temp == null)
-			return null;
-		return temp.value;
+		try {
+			if (isEmpty())
+				return null;
+			int hashIndex = getListIndex(key);
+			DictionaryNode<K,V> targetNode = (new DictionaryNode<K,V>(key, null));
+			DictionaryNode<K,V> temp = list[hashIndex].find(targetNode);
+			if (temp == null)
+				return null;
+			return temp.value;
+		}
+		catch (Exception e) {
+			System.out.println("Error in getValue");
+			System.out.println("Error is " + e.getMessage());
+		}
+		return null;
 	}
 	/**
 	   * Returns the key associated with the first instance of an object possessing
@@ -81,26 +138,33 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	   * @return
 	   */
 	public K getKey(V value) {
-		if (isEmpty())
-			return null;
-		// v counter
-		int vcounter = 0;
-		// v iterator
-		Iterator<V> vItr = values();
-		while (vItr.hasNext()) {
-			V currValue = vItr.next();
-			// if value = itrValue
-			if (((Comparable<V>)value).compareTo((V)currValue) == 0)
-				break;
-			vcounter++;
+		try {
+			if (isEmpty())
+				return null;
+			// v counter
+			int vcounter = 0;
+			// v iterator
+			Iterator<V> vItr = values();
+			while (vItr.hasNext()) {
+				V currValue = vItr.next();
+				// if value = itrValue
+				if (((Comparable<V>)value).compareTo((V)currValue) == 0)
+					break;
+				vcounter++;
+			}
+			// k iterator
+			Iterator<K> kItr = keys();
+			K currKey = null;
+			for (int i = 0; i <= vcounter; i++) {
+				currKey = kItr.next();
+			}
+			return currKey;
 		}
-		// k iterator
-		Iterator<K> kItr = keys();
-		K currKey = null;
-		for (int i = 0; i <= vcounter; i++) {
-			currKey = kItr.next();
+		catch (Exception e) {
+			System.out.println("Error in getKey");
+			System.out.println("Error is " + e.getMessage());
 		}
-		return currKey;
+		return null;
 	}
 	/**
 	   * Indicates quantity of entries in the dictionary.
@@ -130,6 +194,9 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	public void clear() {
 		for (int i = 0; i < list.length; i++)
 			list[i].clear();
+		currSize = 0;
+		modCounter = 0;
+		maxSize = 11;
 	}
 
 	public Iterator<K> keys() {
@@ -153,8 +220,13 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 				for (DictionaryNode n: list[i])
 					nodes[j++] = n;
 			}
-			Heap hs = new Heap();
-			nodes = (DictionaryNode<K,V>[]) hs.heapSort(nodes); 
+			try {
+				Heap<DictionaryNode<K,V>> hs = new Heap<DictionaryNode<K,V>>();
+				nodes = hs.heapSort(nodes);
+			}
+			catch (Exception e) {
+				System.err.println("dasdsad");
+			}
 		}
 		public boolean hasNext() {
 			if (modCheck != modCounter)
@@ -195,5 +267,6 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 		public int compareTo(DictionaryNode<K, V> node) {
 			return ((Comparable<K>)key).compareTo((K)node.key);
 		}
+
 	}
 }
