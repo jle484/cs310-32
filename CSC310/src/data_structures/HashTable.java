@@ -27,6 +27,8 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	}
 	
 	public boolean contains(K key) {
+		if (isEmpty())
+			return false;
 		return list[getListIndex(key)].contains(new DictionaryNode<K,V>(key, null));
 	}
 
@@ -44,8 +46,15 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 	}
 
 	public boolean delete(K key) {
-		// TODO Auto-generated method stub
-		
+		if (isEmpty())
+			return false;
+		if (contains(key)) {
+			int listIndex = getListIndex(key); 
+			list[listIndex].removeFirst();
+			currSize--;
+			modCounter++;
+			return true;
+		}
 		return false;
 	}
 	/**
@@ -185,7 +194,6 @@ public class HashTable<K,V> implements DictionaryADT<K,V>{
 		}
 		public int compareTo(DictionaryNode<K, V> node) {
 			return ((Comparable<K>)key).compareTo((K)node.key);
-			//return ((Comparable<K>)key).compareTo((K)node.key) + ((Comparable<V>)value).compareTo((V)node.value);
 		}
 	}
 }
